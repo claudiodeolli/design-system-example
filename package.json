@@ -1,0 +1,24 @@
+{
+  "name": "contasy-ui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "demo": "npx serve demo -p 5500",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/core-common": "^8.6.14",
+    "@storybook/html-webpack5": "^8.6.14",
+    "storybook": "^8.6.18",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
+  }
+}

@@ -1,0 +1,158 @@
+/* ============================================================
+   BADGE / STATUS COMPONENT
+   ============================================================ */
+
+.c-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  letter-spacing: 0.2px;
+}
+
+.c-badge--dot::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* --- Status Variants --- */
+.c-badge--success {
+  background: var(--color-success-bg);
+  color: #1a9e56;
+}
+
+.c-badge--warning {
+  background: var(--color-warning-bg);
+  color: #cc7621;
+}
+
+.c-badge--danger {
+  background: var(--color-danger-bg);
+  color: #c53030;
+}
+
+.c-badge--info {
+  background: var(--color-info-bg);
+  color: #0099b0;
+}
+
+.c-badge--primary {
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+}
+
+.c-badge--neutral {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.c-badge--dark {
+  background: var(--color-text);
+  color: var(--color-white);
+}
+
+/* --- Sizes --- */
+.c-badge--sm {
+  padding: 2px 7px;
+  font-size: 10px;
+}
+
+.c-badge--lg {
+  padding: 6px 14px;
+  font-size: var(--font-size-sm);
+}
+
+/* --- Outlined variant --- */
+.c-badge--outline {
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+
+.c-badge--outline.c-badge--success { color: var(--color-success); }
+.c-badge--outline.c-badge--warning { color: var(--color-warning); }
+.c-badge--outline.c-badge--danger  { color: var(--color-danger); }
+.c-badge--outline.c-badge--primary { color: var(--color-primary); }
+
+/* ============================================================
+   ALERT COMPONENT (inline messages)
+   ============================================================ */
+
+.c-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  border-left: 4px solid;
+  transition: opacity var(--transition-base);
+}
+
+.c-alert__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.c-alert__icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.c-alert__content {
+  flex: 1;
+}
+
+.c-alert__title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 4px;
+}
+
+.c-alert--warning {
+  background: var(--color-warning-bg);
+  color: #8a5a00;
+  border-color: var(--color-warning);
+}
+
+.c-alert--danger {
+  background: #fef0f0;
+  color: #9b1c1c;
+  border-color: var(--color-danger);
+}
+
+.c-alert--success {
+  background: var(--color-success-bg);
+  color: #145a32;
+  border-color: var(--color-success);
+}
+
+.c-alert--info {
+  background: var(--color-info-bg);
+  color: #0c5460;
+  border-color: var(--color-info);
+}
+
+.c-alert--primary {
+  background: var(--color-primary-bg);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary);
+}

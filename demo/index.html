@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contasy — Painel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --color-primary:        #f45b7a;
+      --color-primary-dark:   #d94569;
+      --color-primary-light:  #f9849a;
+      --color-primary-bg:     #fff0f3;
+      --color-white:          #ffffff;
+      --color-bg:             #f5f6fa;
+      --color-surface:        #ffffff;
+      --color-border:         #e8eaf0;
+      --color-text:           #2c2c3e;
+      --color-text-muted:     #8f90a6;
+      --color-text-light:     #b5b7c8;
+      --color-sidebar-width:  260px;
+      --color-sidebar-collapsed: 72px;
+      --color-success:        #28c76f;
+      --color-success-bg:     #e6f9ee;
+      --color-warning:        #ff9f43;
+      --color-warning-bg:     #fff5e9;
+      --color-danger:         #ea5455;
+      --color-danger-bg:      #fdeced;
+      --color-info:           #00cfe8;
+      --color-info-bg:        #e0f9fc;
+      --font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --radius-xs:     4px;
+      --radius-sm:     6px;
+      --radius-md:     8px;
+      --radius-lg:     12px;
+      --radius-xl:     16px;
+      --radius-full:   9999px;
+      --shadow-sm:  0 1px 4px rgba(0,0,0,0.06);
+      --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,0.14);
+      --transition-fast:  220ms ease-in-out;
+      --transition-base:  480ms ease-in-out;
+    }
+
+    /* ============================================================
+       RESET
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { border: none; background: none; cursor: pointer; font-family: inherit; }
+    svg { display: block; }
+
+    /* ============================================================
+       LAYOUT
+       ============================================================ */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    .app-main {
+      flex: 1;
+      margin-left: var(--color-sidebar-width);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: margin-left var(--transition-base);
+    }
+
+    .app-main.is-collapsed { margin-left: var(--color-sidebar-collapsed); }
+
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 28px 40px;
+    }
+
+    /* ============================================================
+       SIDEMENU
+       ============================================================ */
+    .sidemenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--color-sidebar-width);
+      height: 100vh;
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+      transition: width var(--transition-base);
+    }
+
+    .sidemenu.is-collapsed { width: var(--color-sidebar-collapsed); }
+
+    /* Logo */
+    .sidemenu__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 20px;
+      min-height: 72px;
+      color: var(--color-primary);
+      text-decoration: none;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+    /* Gradient fade below logo */
+    .sidemenu__logo::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: 36px;
+      background: linear-gradient(to bottom, var(--color-surface), transparent);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .sidemenu__logo-icon { display:flex; align-items:center; flex-shrink:0; }
+    .sidemenu__logo-icon svg { width: 32px; height: 32px; }
+    .sidemenu__logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity var(--transition-base), width var(--transition-base);
+    }
+    .sidemenu.is-collapsed .sidemenu__logo-text { opacity: 0; width: 0; }
+    .sidemenu.is-collapsed .sidemenu__logo { justify-content: center; }
+
+    /* Toggle button */
+    .sidemenu__toggle {
+      position: fixed;
+      top: 22px;
+      left: calc(var(--color-sidebar-width) - 14px);
+      width: 28px;
+      height: 28px;
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 101;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition-fast), border-color var(--transition-fast), left var(--transition-base);
+      color: var(--color-text-muted);
+    }
+    .sidemenu__toggle:hover { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+    .sidemenu__toggle svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+      transition: transform var(--transition-base);
+    }
+    .sidemenu.is-collapsed .sidemenu__toggle { left: calc(var(--color-sidebar-collapsed) - 14px); }
+    .sidemenu.is-collapsed .sidemenu__toggle svg { transform: rotate(180deg); }
+
+    /* Nav */
+    .sidemenu__nav {
+      flex: 1;
+      padding: 12px 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+    .sidemenu__nav:hover { scrollbar-color: var(--color-border) transparent; }
+    .sidemenu__nav::-webkit-scrollbar { width: 4px; }
+    .sidemenu__nav::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 99px;
+      transition: background 600ms ease-in-out;
+    }
+    .sidemenu__nav:hover::-webkit-scrollbar-thumb { background: var(--color-border); }
+    .sidemenu__section { margin-bottom: 4px; }
+    .sidemenu__section-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--color-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 14px 20px 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity var(--transition-base);
+    }
+    .sidemenu.is-collapsed .sidemenu__section-label { opacity: 0; }
+
+    .sidemenu__item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      margin: 2px 10px;
+      border-radius: var(--radius-md);
+      color: var(--color-text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      user-select: none;
+      transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        gap var(--transition-base),
+        transform 280ms linear;
+    }
+    .sidemenu__item:hover { background: var(--color-primary-bg); color: var(--color-primary); transform: translateX(8px); }
+    .sidemenu__item.is-active {
+      background: linear-gradient(135deg, #f45b7a 0%, #f9849a 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(244,91,122,.4);
+    }
+    .sidemenu__item.is-active:hover { transform: none; opacity: .95; }
+
+    .sidemenu__item-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; flex-shrink: 0;
+      transition: transform 280ms linear;
+    }
+    .sidemenu__item:hover .sidemenu__item-icon { transform: scale(1.1); }
+    .sidemenu__item-icon svg {
+      width: 18px; height: 18px;
+      stroke: currentColor; fill: none; stroke-width: 1.8;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .sidemenu__item-label {
+      flex: 1;
+      min-width: 0;
+      transition: opacity var(--transition-base), flex var(--transition-base), max-width var(--transition-base);
+      overflow: hidden;
+    }
+    .sidemenu.is-collapsed .sidemenu__item-label {
+      opacity: 0;
+      flex: 0 0 0;
+      max-width: 0;
+      overflow: hidden;
+    }
+    .sidemenu.is-collapsed .sidemenu__item {
+      justify-content: center;
+      padding: 11px 0;
+      margin: 2px 8px;
+      gap: 0;
+      width: calc(var(--color-sidebar-collapsed) - 16px);
+    }
+    .sidemenu.is-collapsed .sidemenu__item:hover { transform: none; }
+
+    .sidemenu__badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--color-primary); color: #fff;
+      font-size: 10px; font-weight: 700; border-radius: 99px;
+      transition: opacity var(--transition-base);
+    }
+    .sidemenu__item.is-active .sidemenu__badge { background: rgba(255,255,255,.3); }
+    .sidemenu.is-collapsed .sidemenu__badge { opacity: 0; width: 0; overflow: hidden; padding: 0; min-width: 0; }
+
+    /* ============================================================
+       TOPBAR
+       ============================================================ */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding: 0 28px;
+      height: 72px;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      transition: box-shadow var(--transition-base);
+      flex-shrink: 0;
+    }
+    .topbar.is-scrolled { box-shadow: var(--shadow-md); }
+    .topbar__mobile-btn {
+      display: none;
+      align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      color: var(--color-text-muted);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      margin-right: auto;
+    }
+    .topbar__mobile-btn:hover { background: var(--color-bg); color: var(--color-primary); }
+    .topbar__mobile-btn svg { width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+    .topbar__company {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      flex: 1;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ============================================================
+       BUTTON
+       ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-family: var(--font-family);
+      font-size: 14px;
+      font-weight: 600;
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      transition:
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast),
+        opacity var(--transition-fast);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0; }
+    .btn--primary {
+      background: linear-gradient(135deg,#f45b7a,#f9849a);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(244,91,122,.35);
+    }
+    .btn--primary:hover { background: linear-gradient(135deg,#d94569,#f45b7a); box-shadow: 0 6px 20px rgba(244,91,122,.45); transform: translateY(-1px); }
+    .btn--success {
+      background: linear-gradient(135deg,#28c76f,#55dd95);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(40,199,111,.3);
+    }
+    .btn--success:hover { background: linear-gradient(135deg,#1e9e57,#28c76f); transform: translateY(-1px); }
+    .btn--secondary {
+      background: transparent;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    .btn--secondary:hover { background: var(--color-primary-bg); transform: translateY(-1px); }
+    .btn--ghost { background: transparent; border-color: transparent; color: var(--color-text-muted); }
+    .btn--ghost:hover { background: var(--color-bg); color: var(--color-text); }
+    .btn--sm { padding: 7px 14px; font-size: 12px; }
+    .btn--pill { border-radius: 99px; }
+
+    /* ============================================================
+       PAGE HEADER
+       ============================================================ */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .page-header__left { display: flex; flex-direction: column; gap: 6px; }
+    .page-header__title { font-size: 26px; font-weight: 700; letter-spacing: -.5px; line-height: 1.2; }
+    .page-header__actions { display: flex; align-items: center; gap: 10px; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; align-items: center; gap: 6px; }
+    .breadcrumb__item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .breadcrumb__link {
+      display: flex; align-items: center; gap: 4px;
+      color: var(--color-text-muted); font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+    .breadcrumb__link:hover { color: var(--color-primary); }
+    .breadcrumb__link svg { width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+    .breadcrumb__sep { color: var(--color-text-light); }
+    .breadcrumb__sep svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round; }
+    .breadcrumb__current { color: var(--color-text); font-weight: 500; }
+
+    /* ============================================================
+       STAT CARDS
+       ============================================================ */
+    .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 1200px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px)  { .stat-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--stat-accent, var(--color-primary));
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--color-primary-light); }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-card__content { flex: 1; min-width: 0; }
+    .stat-card__value {
+      font-size: 22px; font-weight: 700; letter-spacing: -.5px; line-height: 1.2;
+      transition: color var(--transition-fast);
+    }
+    .stat-card:hover .stat-card__value { color: var(--color-primary); }
+    .stat-card__label { font-size: 13px; color: var(--color-text-muted); margin-top: 4px; font-weight: 500; }
+    .stat-card__icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--stat-icon-bg, #e6f9ee);
+      flex-shrink: 0;
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+    }
+    .stat-card:hover .stat-card__icon { transform: scale(1.08) rotate(-5deg); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+    .stat-card__icon svg { width:24px;height:24px;stroke:var(--stat-icon-color,#28c76f);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+
+    .stat-card--green { --stat-icon-bg:#e6f9ee; --stat-icon-color:#28c76f; --stat-accent:#28c76f; }
+    .stat-card--orange{ --stat-icon-bg:#fff5e9; --stat-icon-color:#ff9f43; --stat-accent:#ff9f43; }
+    .stat-card--blue  { --stat-icon-bg:#e0f9fc; --stat-icon-color:#00cfe8; --stat-accent:#00cfe8; }
+    .stat-card--teal  { --stat-icon-bg:#e6f7f5; --stat-icon-color:#4fd4c4; --stat-accent:#4fd4c4; }
+
+    /* ============================================================
+       CARD
+       ============================================================ */
+    .card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+    .card__header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card__title { font-size: 15px; font-weight: 600; }
+    .card__body  { padding: 22px; }
+    .card__footer { padding: 14px 22px; border-top: 1px solid var(--color-border); background: var(--color-bg); }
+
+    /* ============================================================
+       TABLE
+       ============================================================ */
+    .table-wrapper { width:100%; overflow-x:auto; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); }
+    table { width:100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--color-bg); border-bottom: 2px solid var(--color-border); }
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--color-border); transition: background var(--transition-fast); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--color-bg); }
+    tbody td { padding: 14px 16px; vertical-align: middle; }
+    .table__link { color: var(--color-primary); font-weight: 500; text-decoration: none; }
+    .table__link:hover { text-decoration: underline; }
+
+    /* ============================================================
+       BADGE
+       ============================================================ */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px;
+      font-size: 11px; font-weight: 600;
+      border-radius: 99px;
+      white-space: nowrap;
+      letter-spacing: .2px;
+    }
+    .badge--success { background: var(--color-success-bg); color: #1a9e56; }
+    .badge--warning { background: var(--color-warning-bg); color: #cc7621; }
+    .badge--danger  { background: var(--color-danger-bg);  color: #c53030; }
+    .badge--primary { background: var(--color-primary-bg); color: var(--color-primary-dark); }
+    .badge--neutral { background: var(--color-bg); color: var(--color-text-muted); border:1px solid var(--color-border); }
+
+    /* ============================================================
+       ALERT
+       ============================================================ */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      line-height: 1.6;
+      border-left: 4px solid;
+    }
+    .alert svg { width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:1px; }
+    .alert--danger  { background:#fef0f0; color:#9b1c1c; border-color: var(--color-danger); }
+    .alert--warning { background: var(--color-warning-bg); color:#8a5a00; border-color: var(--color-warning); }
+    .alert--success { background: var(--color-success-bg); color:#145a32; border-color: var(--color-success); }
+
+    /* ============================================================
+       PAGINATION
+       ============================================================ */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; font-size: 13px; color: var(--color-text-muted);
+      gap: 12px; flex-wrap: wrap;
+    }
+    .pagination__controls { display: flex; align-items: center; gap: 4px; }
+    .pagination__btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--color-border);
+      background: #fff;
+      color: var(--color-text-muted);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      font-family: var(--font-family);
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+    }
+    .pagination__btn svg { width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round; }
+    .pagination__btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .pagination__btn.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; box-shadow: 0 4px 12px rgba(244,91,122,.35); }
+    .pagination__btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ============================================================
+       DASHBOARD CHARTS PLACEHOLDER
+       ============================================================ */
+    .chart-area {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1000px) { .chart-area { grid-template-columns: 1fr; } }
+
+    .chart-placeholder {
+      height: 260px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 20px 20px 0;
+      position: relative;
+    }
+    .chart-bar-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1;
+    }
+    .chart-bar {
+      width: 100%;
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height .8s cubic-bezier(.25,.8,.25,1), opacity var(--transition-base);
+      position: relative;
+    }
+    .chart-bar--entrada { background: linear-gradient(180deg,#28c76f,#55dd95); }
+    .chart-bar--saida   { background: linear-gradient(180deg,#f45b7a,#f9849a); }
+    .chart-bar-label { font-size: 10px; color: var(--color-text-muted); font-weight: 500; }
+
+    .chart-legend { display: flex; gap: 14px; padding: 12px 20px; }
+    .chart-legend__item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-muted); }
+    .chart-legend__dot { width: 10px; height: 10px; border-radius: 50%; }
+    .chart-legend__dot--green { background: #28c76f; }
+    .chart-legend__dot--pink  { background: #f45b7a; }
+
+    /* Simples Nacional gauge */
+    .gauge-container { display: flex; flex-direction: column; align-items: center; padding: 20px; gap: 16px; }
+    .gauge { position: relative; width: 180px; height: 100px; }
+    .gauge-svg { width: 100%; height: 200px; overflow: visible; }
+    .gauge__value { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 22px; font-weight: 700; color: var(--color-text); }
+    .gauge-info { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+    .gauge-info__item { display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
+    .gauge-info__label { font-size: 11px; color: var(--color-text-muted); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .gauge-info__value { font-size: 15px; font-weight: 700; }
+
+    /* ============================================================
+       SUBSCRIPTION PAGE
+       ============================================================ */
+    .sub-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+    @media (max-width: 900px) { .sub-layout { grid-template-columns: 1fr; } }
+
+    .sub-plan {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .sub-plan__header { display: flex; align-items: center; justify-content: space-between; }
+    .sub-plan__name { font-size: 16px; font-weight: 600; }
+    .sub-plan__section { display: flex; flex-direction: column; gap: 4px; }
+    .sub-plan__section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--color-text-light); }
+    .sub-plan__price { font-size: 28px; font-weight: 700; }
+    .sub-plan__price span { font-size: 14px; font-weight: 400; color: var(--color-text-muted); }
+
+    /* ============================================================
+       PAGE TABS
+       ============================================================ */
+    .page-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--color-border);
+      margin-bottom: 28px;
+    }
+    .page-tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color var(--transition-fast), border-color var(--transition-fast);
+      white-space: nowrap;
+    }
+    .page-tab:hover { color: var(--color-text); }
+    .page-tab.is-active { color: var(--color-primary); border-color: var(--color-primary); font-weight: 600; }
+
+    /* ============================================================
+       PAGE VIEWS — EXIT / ENTER ANIMATIONS
+       ============================================================ */
+    @keyframes c-page-exit {
+      0%   { opacity: 1; transform: scale(1);     }
+      50%  { opacity: 0;                           }
+      100% { opacity: 0; transform: scale(1.035); }
+    }
+    @keyframes c-page-enter {
+      from { opacity: 0; transform: scale(0.96); }
+      to   { opacity: 1; transform: scale(1);    }
+    }
+    .page { display: none; }
+    .page.is-exiting {
+      display: block;
+      animation: c-page-exit 0.42s ease-in-out both;
+      pointer-events: none;
+    }
+    .page.is-active {
+      display: block;
+      animation: c-page-enter 0.43s ease-in-out both;
+    }
+
+    /* ============================================================
+       COMPONENT SKELETONS (injected per-element, not overlay)
+       ============================================================ */
+    @keyframes skeleton-shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .sk-line {
+      display: block;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(90deg,
+        var(--color-border) 25%,
+        #fff 50%,
+        var(--color-border) 75%);
+      background-size: 600px 100%;
+      animation: skeleton-shimmer 1.5s infinite linear;
+    }
+    /* stat-card skeleton */
+    .stat-card__value,
+    .stat-card__label  { transition: opacity 0.3s ease; }
+    .stat-card__icon   { transition: opacity 0.3s ease; }
+    .stat-card.is-skeleton { position: relative; }
+    .stat-card.is-skeleton .stat-card__value,
+    .stat-card.is-skeleton .stat-card__label,
+    .stat-card.is-skeleton .stat-card__icon { opacity: 0; }
+    .sk-card-lines { position: absolute; inset: 0; padding: 16px 18px; pointer-events: none; display: flex; flex-direction: column; justify-content: center; }
+    /* card-body skeleton */
+    .card.is-skeleton { position: relative; overflow: hidden; }
+    .card.is-skeleton > *:not(.card__header):not(.sk-card-body-overlay) {
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .sk-card-body-overlay {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 8px 20px 20px;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    /* table skeleton rows */
+    .sk-tbody-placeholder td {
+      padding: 14px 12px;
+    }
+
+    /* ============================================================
+       MOBILE SIDEMENU OVERLAY
+       ============================================================ */
+    .sidemenu-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 99;
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .sidemenu-overlay.is-visible { display: block; opacity: 1; }
+
+    @media (max-width: 768px) {
+      .sidemenu { transform: translateX(-110%); width: var(--color-sidebar-width) !important; }
+      .sidemenu.is-open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+      .sidemenu__toggle { display: none; }
+      .app-main { margin-left: 0 !important; }
+      .topbar__mobile-btn { display: flex; }
+    }
+
+    /* ============================================================
+       TOOLTIP on collapsed icon
+       ============================================================ */
+    .sidemenu.is-collapsed .sidemenu__item { position: relative; }
+    .sidemenu.is-collapsed .sidemenu__item::after {
+      content: attr(data-label);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--color-text);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+      z-index: 200;
+    }
+    .sidemenu.is-collapsed .sidemenu__item:hover::after { opacity: 1; }
+
+    /* ============================================================
+       WHATSAPP FLOAT BUTTON
+       ============================================================ */
+    .fab-whatsapp {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px; height: 56px;
+      background: #25d366;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,.5);
+      transition: transform var(--transition-base), box-shadow var(--transition-base);
+      z-index: 500;
+      cursor: pointer;
+    }
+    .fab-whatsapp:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(37,211,102,.6); }
+    .fab-whatsapp svg { width:28px;height:28px;fill:#fff; }
+    .fab-whatsapp__dot {
+      position: absolute; top: 4px; right: 4px;
+      width: 12px; height: 12px; background: var(--color-danger);
+      border-radius: 50%; border: 2px solid #fff;
+    }
+
+    /* ============================================================
+       TOAST NOTIFICATION
+       ============================================================ */
+    .toast-container {
+      position: fixed; bottom: 90px; right: 24px;
+      display: flex; flex-direction: column; gap: 10px;
+      z-index: 600;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px;
+      background: var(--color-text);
+      color: #fff;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      min-width: 260px;
+      max-width: 340px;
+      animation: toast-in .3s ease;
+    }
+    .toast--success { background: var(--color-success); }
+    .toast--danger  { background: var(--color-danger); }
+    .toast svg { width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0; }
+    @keyframes toast-in { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ======================================================
+       SIDEMENU
+       ====================================================== -->
+  <aside class="sidemenu" id="sidemenu">
+    <a class="sidemenu__logo" href="#">
+      <span class="sidemenu__logo-icon">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M16 3C9.373 3 4 8.373 4 15c0 4.5 2.3 8.47 5.78 10.76L16 29l6.22-3.24C25.7 23.47 28 19.5 28 15 28 8.373 22.627 3 16 3z" fill="#f45b7a" opacity=".9"/>
+          <path d="M16 8c-3.866 0-7 3.134-7 7s3.134 7 7 7 7-3.134 7-7-3.134-7-7-7zm0 11c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" fill="#fff"/>
+        </svg>
+      </span>
+      <span class="sidemenu__logo-text">contasy</span>
+    </a>
+
+    <button class="sidemenu__toggle" id="sideToggle" title="Recolher menu">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <nav class="sidemenu__nav">
+      <!-- No label -->
+      <div class="sidemenu__section">
+        <a class="sidemenu__item is-active" href="#" data-page="painel" data-label="Painel">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Painel</span>
+        </a>
+      </div>
+
+      <!-- Contabilidade -->
+      <div class="sidemenu__section">
+        <span class="sidemenu__section-label">Contabilidade</span>
+        <a class="sidemenu__item" href="#" data-page="empresa" data-label="Empresa">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Empresa</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="impostos" data-label="Impostos">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Impostos</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="declaracoes" data-label="Declarações">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Declarações</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="notas" data-label="Notas fiscais">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Notas fiscais</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="assinatura" data-label="Assinatura">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Assinatura</span>
+          <span class="sidemenu__badge">1</span>
+        </a>
+      </div>
+
+      <!-- Minha Conta -->
+      <div class="sidemenu__section">
+        <span class="sidemenu__section-label">Minha Conta</span>
+        <a class="sidemenu__item" href="#" data-page="dados" data-label="Dados pessoais">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Dados pessoais</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="certificado" data-label="Certificado">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Certificado (e-CPF)</span>
+        </a>
+        <a class="sidemenu__item" href="#" data-page="minhas-empresas" data-label="Minhas empresas">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Minhas empresas</span>
+        </a>
+      </div>
+
+      <!-- Benefícios -->
+      <div class="sidemenu__section">
+        <span class="sidemenu__section-label">Benefícios</span>
+        <a class="sidemenu__item" href="#" data-page="parceiros" data-label="Nossos parceiros">
+          <span class="sidemenu__item-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          <span class="sidemenu__item-label">Nossos parceiros</span>
+        </a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ======================================================
+       MOBILE OVERLAY
+       ====================================================== -->
+  <div class="sidemenu-overlay" id="sideOverlay"></div>
+
+  <!-- ======================================================
+       MAIN
+       ====================================================== -->
+  <div class="app-main" id="appMain">
+    <!-- TOPBAR -->
+    <header class="topbar" id="topbar">
+      <button class="btn btn--ghost topbar__mobile-btn" id="mobileMenuBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px">
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <span class="topbar__company">MARSHALLS EMPRESARIAIS E DIGITAIS NEGOCIOS DIGITAIS LTDA</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn btn--primary btn--sm" id="yearBtn" onclick="showToast('Selecione o ano fiscal','success')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          2026
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="app-content" id="appContent">
+
+      <!-- ========================
+           PAGE: PAINEL
+           ======================== -->
+      <div class="page is-active" id="page-painel">
+        <div class="page-header">
+          <div class="page-header__left">
+            <nav class="breadcrumb">
+              <span class="breadcrumb__item">
+                <a href="#" class="breadcrumb__link">
+                  <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </a>
+                <span class="breadcrumb__sep"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </span>
+              <span class="breadcrumb__item"><span class="breadcrumb__current">Painel</span></span>
+            </nav>
+            <h1 class="page-header__title">Painel</h1>
+          </div>
+          <div class="page-header__actions">
+            <button class="btn btn--primary" onclick="showToast('Exportando relatório...','success')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar
+            </button>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stat-grid">
+          <div class="stat-card stat-card--green">
+            <div class="stat-card__content">
+              <div class="stat-card__value" id="val-entradas">R$ 0,00</div>
+              <div class="stat-card__label">Entradas</div>
+            </div>
+            <div class="stat-card__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>
+            </div>
+          </div>
+          <div class="stat-card stat-card--orange">
+            <div class="stat-card__content">
+              <div class="stat-card__value" id="val-saidas">R$ 0,00</div>
+              <div class="stat-card__label">Saídas</div>
+            </div>
+            <div class="stat-card__icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2M8 7V5a2 2 0 0 0-4 0v2"/></svg>
+            </div>
+          </div>
+          <div class="stat-card stat-card--blue">
+            <div class="stat-card__content">
+              <div class="stat-card__value" id="val-nfs">R$ 0,00</div>
+              <div class="stat-card__label">NFs | Receita</div>
+            </div>
+            <div class="stat-card__icon">
+              <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+            </div>
+          </div>
+          <div class="stat-card stat-card--teal">
+            <div class="stat-card__content">
+              <div class="stat-card__value" id="val-impostos">R$ 0,00</div>
+              <div class="stat-card__label">Impostos pagos</div>
+            </div>
+            <div class="stat-card__icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="chart-area">
+          <!-- Financial chart -->
+          <div class="card">
+            <div class="card__header">
+              <span class="card__title">Análise financeira</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn--ghost btn--sm" onclick="this.classList.toggle('is-active')">Mês</button>
+                <button class="btn btn--ghost btn--sm">Ano</button>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--green"></span>Entradas</span>
+              <span class="chart-legend__item"><span class="chart-legend__dot chart-legend__dot--pink"></span>Saídas</span>
+            </div>
+            <div class="chart-placeholder" id="barChart"></div>
+            <div style="display:flex;justify-content:space-around;padding:8px 20px 16px;font-size:11px;color:var(--color-text-muted);" id="chartLabels"></div>
+          </div>
+
+          <!-- Simples Nacional -->
+          <div class="card">
+            <div class="card__header">
+              <span class="card__title">Simples Nacional</span>
+              <button style="color:var(--color-text-muted);font-size:18px;line-height:1;cursor:pointer;" title="Ajuda" onclick="showToast('O Simples Nacional é o regime tributário simplificado para micro e pequenas empresas.','success')">?</button>
+            </div>
+            <div class="gauge-container">
+              <div class="gauge">
+                <svg class="gauge-svg" viewBox="0 0 200 110">
+                  <!-- Track -->
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#e8eaf0" stroke-width="16" stroke-linecap="round"/>
+                  <!-- Segment 1 (green - used) -->
+                  <path id="gaugeGreen" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#28c76f" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 251.3" style="transition:stroke-dasharray 1.5s ease"/>
+                  <!-- Segment 2 (teal) -->
+                  <path id="gaugeTeal" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#4fd4c4" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 251.3" style="transition:stroke-dasharray 1.5s .2s ease"/>
+                </svg>
+                <div class="gauge__value">8,50%</div>
+              </div>
+              <div class="gauge-info">
+                <div class="gauge-info__item">
+                  <span class="gauge-info__label">RBT12p <span style="cursor:help" title="Receita Bruta dos últimos 12 meses">ⓘ</span></span>
+                  <span class="gauge-info__value">R$ 0,00</span>
+                </div>
+                <div class="gauge-info__item">
+                  <span class="gauge-info__label">Anexo</span>
+                  <span class="gauge-info__value">I, III, V</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulate data button -->
+        <div style="margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn--primary" onclick="simulateData()">Simular dados financeiros</button>
+          <button class="btn btn--secondary" onclick="resetData()">Limpar dados</button>
+        </div>
+      </div>
+
+      <!-- ========================
+           PAGE: ASSINATURA
+           ======================== -->
+      <div class="page" id="page-assinatura">
+        <div class="page-header">
+          <div class="page-header__left">
+            <nav class="breadcrumb">
+              <span class="breadcrumb__item">
+                <a href="#" class="breadcrumb__link" onclick="navigate('painel')">
+                  <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </a>
+                <span class="breadcrumb__sep"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </span>
+              <span class="breadcrumb__item"><span class="breadcrumb__current">Assinaturas</span></span>
+            </nav>
+            <h1 class="page-header__title">Assinaturas</h1>
+          </div>
+        </div>
+
+        <div class="sub-layout">
+          <!-- Plan card -->
+          <div class="sub-plan">
+            <div class="sub-plan__header">
+              <span class="sub-plan__name">Contabilidade</span>
+              <span class="badge badge--danger">Cancelada</span>
+            </div>
+            <div class="sub-plan__section">
+              <span class="sub-plan__section-label">Plano</span>
+              <div class="sub-plan__price">R$<b>290,00</b><span>/ mês</span></div>
+            </div>
+            <div class="sub-plan__section">
+              <span class="sub-plan__section-label">Última cobrança</span>
+              <span class="badge badge--danger">Pagamentos atrasados</span>
+            </div>
+          </div>
+
+          <!-- Right side -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="alert alert--danger">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>A sua mensalidade está pendente. Realize o pagamento da mensalidade para que sua empresa não fique irregular perante a receita federal. Enquanto você possuir mensalidades em atraso, a Contasy se isenta 100% das responsabilidades contábeis da sua empresa.</span>
+            </div>
+
+            <div class="card">
+              <div class="card__header">
+                <span class="card__title">Histórico de cobranças</span>
+              </div>
+              <div class="table-wrapper" style="border:none;border-radius:0;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Descrição</th>
+                      <th>Período</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th>Pago em</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="billingTableBody">
+                    <!-- JS generated -->
+                  </tbody>
+                </table>
+                <div class="pagination">
+                  <span class="pagination__info">Mostrando 1 até 2 de 2 registros</span>
+                  <div class="pagination__controls">
+                    <button class="pagination__btn" disabled>
+                      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button class="pagination__btn is-active">1</button>
+                    <button class="pagination__btn" disabled>
+                      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card__footer" style="font-size:12px;color:var(--color-text-muted);">
+                Nós da Contasy somos responsáveis pela sua empresa perante a Receita Federal enquanto sua assinatura estiver ativa e em dia.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================
+           PAGE: NOTAS FISCAIS
+           ======================== -->
+      <div class="page" id="page-notas">
+        <div class="page-header">
+          <div class="page-header__left">
+            <nav class="breadcrumb">
+              <span class="breadcrumb__item">
+                <a href="#" class="breadcrumb__link" onclick="navigate('painel')">
+                  <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </a>
+                <span class="breadcrumb__sep"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+              </span>
+              <span class="breadcrumb__item"><span class="breadcrumb__current">Notas fiscais</span></span>
+            </nav>
+            <h1 class="page-header__title">Notas fiscais</h1>
+          </div>
+          <div class="page-header__actions">
+            <button class="btn btn--primary" onclick="showToast('Nova NF criada!','success')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nova nota
+            </button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Data</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="notasTableBody"></tbody>
+          </table>
+          <div class="pagination">
+            <span class="pagination__info">Mostrando 1 até 5 de 5 registros</span>
+            <div class="pagination__controls">
+              <button class="pagination__btn" disabled><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <button class="pagination__btn is-active">1</button>
+              <button class="pagination__btn" disabled><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic placeholder for other pages -->
+      <div class="page" id="page-empresa">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Empresa</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <svg style="width:48px;height:48px;stroke:currentColor;fill:none;stroke-width:1.5;margin:0 auto 16px;display:block;opacity:.4" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <p style="font-size:16px;font-weight:600;">Dados da empresa</p><p style="margin-top:8px;font-size:14px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-impostos">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Impostos</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Impostos</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-declaracoes">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Declarações</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Declarações</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-dados">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Dados pessoais</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Dados pessoais</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-certificado">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Certificado (e-CPF)</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Certificado digital</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-minhas-empresas">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Minhas empresas</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Minhas empresas</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+      <div class="page" id="page-parceiros">
+        <div class="page-header"><div class="page-header__left"><h1 class="page-header__title">Nossos parceiros</h1></div></div>
+        <div class="card"><div class="card__body" style="color:var(--color-text-muted);text-align:center;padding:60px;">
+          <p style="font-size:16px;font-weight:600;">Nossos parceiros</p><p style="margin-top:8px;">Página em construção.</p>
+        </div></div>
+      </div>
+
+    </div><!-- /.app-content -->
+  </div><!-- /.app-main -->
+</div><!-- /.app -->
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- WhatsApp FAB -->
+<div class="fab-whatsapp" onclick="showToast('Atendimento via WhatsApp','success')">
+  <div class="fab-whatsapp__dot"></div>
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+</div>
+
+<script>
+  /* ============================================================
+     NAVIGATION
+     ============================================================ */
+  const pages = document.querySelectorAll('.page');
+  const navItems = document.querySelectorAll('.sidemenu__item[data-page]');
+
+  /* ============================================================
+     SKELETON HELPERS — inject/remove inside real components
+     ============================================================ */
+  function mkLine(w, h) {
+    const s = document.createElement('span');
+    s.className = 'sk-line';
+    s.style.cssText = `width:${w};height:${h}px;`;
+    return s;
+  }
+
+  function injectSkeletons(page) {
+    const items = [];
+
+    /* ── Stat-cards: shimmer lines over value + label ── */
+    page.querySelectorAll('.stat-card').forEach(card => {
+      const content = card.querySelector('.stat-card__content');
+      if (!content) return;
+      card.classList.add('is-skeleton');
+      const wrap = document.createElement('div');
+      wrap.className = 'sk-card-lines';
+      wrap.appendChild(mkLine('72%', 22));
+      Object.assign(wrap.children[0].style, { marginBottom: '10px' });
+      wrap.appendChild(mkLine('48%', 13));
+      content.appendChild(wrap);
+      items.push({ type: 'stat', card, wrap });
+    });
+
+    /* ── Table tbodies: replace rows with shimmer rows ── */
+    page.querySelectorAll('table').forEach(table => {
+      const realTbody = table.querySelector('tbody');
+      if (!realTbody) return;
+      const cols = table.querySelectorAll('thead th').length || 4;
+      const fakeTbody = document.createElement('tbody');
+      fakeTbody.className = 'sk-tbody-placeholder';
+      const widths = [55, 70, 45, 60, 50, 40];
+      for (let r = 0; r < 5; r++) {
+        const tr = document.createElement('tr');
+        tr.style.opacity = String(Math.max(0.15, 1 - r * 0.2));
+        for (let c = 0; c < cols; c++) {
+          const td = document.createElement('td');
+          td.appendChild(mkLine((widths[c % widths.length] + Math.round(Math.random() * 20)) + '%', 13));
+          tr.appendChild(td);
+        }
+        fakeTbody.appendChild(tr);
+      }
+      realTbody.style.display = 'none';
+      realTbody.parentNode.insertBefore(fakeTbody, realTbody.nextSibling);
+      items.push({ type: 'tbody', realTbody, fakeTbody });
+    });
+
+    /* ── Card bodies (charts, gauges, etc.) ── */
+    page.querySelectorAll('.card').forEach(card => {
+      const hasBody = card.querySelector('.chart-placeholder, .gauge-container, .card__body');
+      if (!hasBody) return;
+      card.classList.add('is-skeleton');
+      const ov = document.createElement('div');
+      ov.className = 'sk-card-body-overlay';
+      ov.appendChild(mkLine('50%', 16));
+      ov.appendChild(mkLine('80%', 13));
+      ov.appendChild(mkLine('65%', 13));
+      ov.appendChild(mkLine('100%', 90));
+      card.appendChild(ov);
+      items.push({ type: 'card', card, ov });
+    });
+
+    return items;
+  }
+
+  function removeSkeletons(items) {
+    items.forEach(item => {
+      if (item.type === 'stat') {
+        item.card.classList.remove('is-skeleton');
+        item.wrap.remove();
+      } else if (item.type === 'tbody') {
+        item.fakeTbody.remove();
+        item.realTbody.style.display = '';
+      } else if (item.type === 'card') {
+        item.card.classList.remove('is-skeleton');
+        item.ov.remove();
+      }
+    });
+  }
+
+  /* ============================================================
+     NAVIGATION
+     ============================================================ */
+  let _navExitTimer    = null;
+  let _navSkeletonTimer = null;
+  let _navSkeletonItems = [];
+  const EXIT_MS     = 420;   // matches c-page-exit duration
+  const SKELETON_MS = 510;   // skeleton visible duration after enter starts
+
+  function navigate(pageId) {
+    const current = document.querySelector('.page.is-active, .page.is-exiting');
+    if (current && current.id === 'page-' + pageId) return;
+
+    // Cancel any in-flight timers
+    clearTimeout(_navExitTimer);
+    clearTimeout(_navSkeletonTimer);
+
+    // Clean up leftover skeleton from a cancelled transition
+    if (_navSkeletonItems.length) {
+      removeSkeletons(_navSkeletonItems);
+      _navSkeletonItems = [];
+    }
+
+    // Snap any exiting page to hidden immediately
+    document.querySelectorAll('.page.is-exiting').forEach(p => {
+      p.classList.remove('is-exiting');
+    });
+    // Hide all active pages
+    document.querySelectorAll('.page.is-active').forEach(p => {
+      p.classList.remove('is-active');
+    });
+
+    // 1. Update nav immediately
+    navItems.forEach(item => item.classList.toggle('is-active', item.dataset.page === pageId));
+
+    // 2. Trigger EXIT on current page
+    const exiting = current;
+    if (exiting) {
+      exiting.classList.add('is-exiting');
+      exiting.addEventListener('animationend', () => {
+        exiting.classList.remove('is-exiting');
+      }, { once: true });
+    }
+
+    // 3. After exit finishes: show target with ENTER + inject skeletons
+    _navExitTimer = setTimeout(() => {
+      document.getElementById('appContent').scrollTop = 0;
+      const target = document.getElementById('page-' + pageId);
+      if (!target) return;
+
+      _navSkeletonItems = injectSkeletons(target);
+      target.classList.add('is-active');
+
+      // 4. After skeleton hold: reveal real component content
+      _navSkeletonTimer = setTimeout(() => {
+        removeSkeletons(_navSkeletonItems);
+        _navSkeletonItems = [];
+      }, SKELETON_MS);
+    }, EXIT_MS);
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigate(item.dataset.page);
+      // Close mobile menu
+      if (window.innerWidth <= 768) closeMobile();
+    });
+  });
+
+  /* ============================================================
+     SIDEBAR TOGGLE
+     ============================================================ */
+  const sidemenu = document.getElementById('sidemenu');
+  const appMain  = document.getElementById('appMain');
+  const sideToggle = document.getElementById('sideToggle');
+
+  sideToggle.addEventListener('click', () => {
+    const collapsed = sidemenu.classList.toggle('is-collapsed');
+    appMain.classList.toggle('is-collapsed', collapsed);
+    sideToggle.title = collapsed ? 'Expandir menu' : 'Recolher menu';
+  });
+
+  /* Mobile */
+  const mobileBtn  = document.getElementById('mobileMenuBtn');
+  const sideOverlay = document.getElementById('sideOverlay');
+
+  function openMobile() {
+    sidemenu.classList.add('is-open');
+    sideOverlay.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobile() {
+    sidemenu.classList.remove('is-open');
+    sideOverlay.classList.remove('is-visible');
+    document.body.style.overflow = '';
+  }
+
+  mobileBtn.addEventListener('click', openMobile);
+  sideOverlay.addEventListener('click', closeMobile);
+
+  /* ============================================================
+     TOPBAR SCROLL SHADOW
+     ============================================================ */
+  const topbar = document.getElementById('topbar');
+  const content = document.getElementById('appContent');
+  content.addEventListener('scroll', () => {
+    topbar.classList.toggle('is-scrolled', content.scrollTop > 10);
+  });
+
+  /* ============================================================
+     CHART
+     ============================================================ */
+  const months  = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const barChart = document.getElementById('barChart');
+  const chartLabels = document.getElementById('chartLabels');
+
+  let chartData = months.map(() => ({ entrada: 0, saida: 0 }));
+
+  function renderChart() {
+    barChart.innerHTML = '';
+    chartLabels.innerHTML = '';
+    const maxVal = Math.max(1, ...chartData.map(d => Math.max(d.entrada, d.saida)));
+
+    chartData.forEach((d, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'chart-bar-wrap';
+
+      const barsWrap = document.createElement('div');
+      barsWrap.style.cssText = 'display:flex;gap:3px;align-items:flex-end;flex:1;width:100%;';
+
+      const barE = document.createElement('div');
+      barE.className = 'chart-bar chart-bar--entrada';
+      barE.style.height = (d.entrada / maxVal * 200) + 'px';
+      barE.style.flex = '1';
+      barE.title = `Entradas ${months[i]}: R$ ${d.entrada.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
+      const barS = document.createElement('div');
+      barS.className = 'chart-bar chart-bar--saida';
+      barS.style.height = (d.saida / maxVal * 200) + 'px';
+      barS.style.flex = '1';
+      barS.title = `Saídas ${months[i]}: R$ ${d.saida.toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+
+      barsWrap.append(barE, barS);
+      wrap.appendChild(barsWrap);
+      barChart.appendChild(wrap);
+
+      const label = document.createElement('span');
+      label.style.cssText = 'font-size:10px;color:var(--color-text-muted);font-weight:500;';
+      label.textContent = months[i];
+      chartLabels.appendChild(label);
+    });
+  }
+
+  function animateGauge() {
+    const total = 251.3;
+    const pct = 0.42; // ~42% of total arc = 8.50% zone
+    const g1 = document.getElementById('gaugeGreen');
+    const g2 = document.getElementById('gaugeTeal');
+    if (!g1) return;
+    setTimeout(() => {
+      g1.setAttribute('stroke-dasharray', (total * pct * 0.6) + ' ' + total);
+      g2.setAttribute('stroke-dasharray', '0 251.3');
+      g2.style.strokeDashoffset = -(total * pct * 0.6);
+    }, 300);
+  }
+
+  renderChart();
+  animateGauge();
+
+  /* ============================================================
+     SIMULATE DATA
+     ============================================================ */
+  function simulateData() {
+    chartData = months.map(() => ({
+      entrada: Math.floor(Math.random() * 15000 + 2000),
+      saida:   Math.floor(Math.random() * 8000  + 1000),
+    }));
+    renderChart();
+
+    const totalEntradas = chartData.reduce((s,d) => s + d.entrada, 0);
+    const totalSaidas   = chartData.reduce((s,d) => s + d.saida,   0);
+
+    animateValue('val-entradas', totalEntradas);
+    animateValue('val-saidas', totalSaidas);
+    animateValue('val-nfs', totalEntradas * .85);
+    animateValue('val-impostos', totalEntradas * .085);
+
+    showToast('Dados simulados com sucesso!', 'success');
+  }
+
+  function resetData() {
+    chartData = months.map(() => ({ entrada: 0, saida: 0 }));
+    renderChart();
+    ['val-entradas','val-saidas','val-nfs','val-impostos'].forEach(id => {
+      document.getElementById(id).textContent = 'R$ 0,00';
+    });
+    showToast('Dados limpos.', 'default');
+  }
+
+  function animateValue(id, target) {
+    const el = document.getElementById(id);
+    const start = 0;
+    const dur = 800;
+    const startTime = performance.now();
+    function update(now) {
+      const t = Math.min((now - startTime) / dur, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = start + (target - start) * eased;
+      el.textContent = 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (t < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  /* ============================================================
+     BILLING TABLE
+     ============================================================ */
+  const billingData = [
+    { desc: 'Contabilidade', href: true,  periodo: '02 Jun, 24 - 02 Jul, 24', total: 'R$ 290,00', status: 'Pendente',  pago_em: '' },
+    { desc: 'Contabilidade', href: false, periodo: '02 Mai, 24 - 02 Jun, 24', total: 'R$ 0,00',   status: 'Pago',      pago_em: '02 Mai, 24' },
+  ];
+
+  function renderBillingTable() {
+    const tbody = document.getElementById('billingTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    billingData.forEach(row => {
+      const statusMap = { Pago: 'success', Pendente: 'warning', Cancelada: 'danger' };
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.href ? `<a class="table__link" href="#">${row.desc}</a>` : row.desc}</td>
+        <td>${row.periodo}</td>
+        <td style="font-weight:600">${row.total}</td>
+        <td><span class="badge badge--${statusMap[row.status]}">${row.status}</span></td>
+        <td>${row.pago_em || '—'}</td>
+        <td>${row.status === 'Pendente' ? `<button class="btn btn--success btn--sm" onclick="payBilling(this)">PAGAR</button>` : ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function payBilling(btn) {
+    btn.disabled = true;
+    btn.textContent = 'Processando...';
+    setTimeout(() => {
+      billingData[0].status = 'Pago';
+      billingData[0].pago_em = '07 Mai, 26';
+      renderBillingTable();
+      showToast('Pagamento realizado com sucesso!', 'success');
+    }, 1500);
+  }
+
+  renderBillingTable();
+
+  /* ============================================================
+     NOTAS FISCAIS TABLE
+     ============================================================ */
+  const notasData = [
+    { num: 'NF-001', cliente: 'Tech Solutions LTDA',  servico: 'Desenvolvimento Web',   valor: 'R$ 4.500,00', data: '05/05/2026', status: 'Pago'    },
+    { num: 'NF-002', cliente: 'Digital Agency ME',    servico: 'Consultoria Digital',    valor: 'R$ 2.200,00', data: '03/05/2026', status: 'Pendente' },
+    { num: 'NF-003', cliente: 'Fast Commerce EIRELI', servico: 'Suporte TI',             valor: 'R$ 800,00',   data: '01/05/2026', status: 'Pago'    },
+    { num: 'NF-004', cliente: 'Prime Brands LTDA',    servico: 'Design Gráfico',         valor: 'R$ 1.800,00', data: '28/04/2026', status: 'Cancelada'},
+    { num: 'NF-005', cliente: 'StartUp Vision ME',    servico: 'Marketing Digital',      valor: 'R$ 3.200,00', data: '25/04/2026', status: 'Pago'    },
+  ];
+
+  function renderNotasTable() {
+    const tbody = document.getElementById('notasTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const statusMap = { Pago: 'success', Pendente: 'warning', Cancelada: 'danger' };
+    notasData.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="font-weight:600;color:var(--color-primary)">${row.num}</td>
+        <td>${row.cliente}</td>
+        <td style="color:var(--color-text-muted)">${row.servico}</td>
+        <td style="font-weight:600">${row.valor}</td>
+        <td style="color:var(--color-text-muted)">${row.data}</td>
+        <td><span class="badge badge--${statusMap[row.status]}">${row.status}</span></td>
+        <td>
+          <button class="btn btn--ghost btn--sm" onclick="showToast('NF baixada!','success')" title="Baixar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  renderNotasTable();
+
+  /* ============================================================
+     TOAST
+     ============================================================ */
+  function showToast(message, type = 'default') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast' + (type === 'success' ? ' toast--success' : type === 'danger' ? ' toast--danger' : '');
+    const iconMap = {
+      success: `<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+      danger:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      default: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+    };
+    toast.innerHTML = (iconMap[type] || iconMap.default) + `<span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(20px)';
+      toast.style.transition = 'opacity .3s,transform .3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+</script>
+</body>
+</html>

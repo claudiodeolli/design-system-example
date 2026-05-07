@@ -1,0 +1,134 @@
+/* ============================================================
+   CONTASY UI — Design Tokens
+   ============================================================ */
+
+:root {
+  /* --- Brand Colors --- */
+  --color-primary:        #f45b7a;
+  --color-primary-dark:   #d94569;
+  --color-primary-light:  #f9849a;
+  --color-primary-bg:     #fff0f3;
+
+  /* --- Neutral Colors --- */
+  --color-white:          #ffffff;
+  --color-bg:             #f5f6fa;
+  --color-surface:        #ffffff;
+  --color-border:         #e8eaf0;
+  --color-text:           #2c2c3e;
+  --color-text-muted:     #8f90a6;
+  --color-text-light:     #b5b7c8;
+
+  /* --- Sidebar Colors --- */
+  --color-sidebar-bg:     #ffffff;
+  --color-sidebar-width:  260px;
+  --color-sidebar-item-hover:  #fff0f3;
+  --color-sidebar-active-bg:   linear-gradient(135deg, #f45b7a 0%, #f9849a 100%);
+  --color-sidebar-section-label: #b5b7c8;
+
+  /* --- Status Colors --- */
+  --color-success:        #28c76f;
+  --color-success-bg:     #e6f9ee;
+  --color-warning:        #ff9f43;
+  --color-warning-bg:     #fff5e9;
+  --color-danger:         #ea5455;
+  --color-danger-bg:      #fdeced;
+  --color-info:           #00cfe8;
+  --color-info-bg:        #e0f9fc;
+
+  /* --- Icon Colors --- */
+  --color-icon-green:     #28c76f;
+  --color-icon-orange:    #ff9f43;
+  --color-icon-blue:      #00cfe8;
+  --color-icon-teal:      #4fd4c4;
+
+  /* --- Typography --- */
+  --font-family:          'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-size-xs:         11px;
+  --font-size-sm:         13px;
+  --font-size-base:       14px;
+  --font-size-md:         15px;
+  --font-size-lg:         18px;
+  --font-size-xl:         22px;
+  --font-size-2xl:        28px;
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  /* --- Spacing --- */
+  --spacing-xs:    4px;
+  --spacing-sm:    8px;
+  --spacing-md:    12px;
+  --spacing-lg:    16px;
+  --spacing-xl:    20px;
+  --spacing-2xl:   24px;
+  --spacing-3xl:   32px;
+
+  /* --- Border Radius --- */
+  --radius-xs:     4px;
+  --radius-sm:     6px;
+  --radius-md:     8px;
+  --radius-lg:     12px;
+  --radius-xl:     16px;
+  --radius-full:   9999px;
+
+  /* --- Shadows --- */
+  --shadow-sm:     0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md:     0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:     0 8px 32px rgba(0,0,0,0.12);
+
+  /* --- Transitions --- */
+  --transition-fast:    150ms ease;
+  --transition-base:    250ms ease;
+  --transition-slow:    400ms ease;
+
+  /* --- Z-index --- */
+  --z-sidebar:    100;
+  --z-topbar:     90;
+  --z-modal:      200;
+  --z-tooltip:    300;
+}
+
+/* ============================================================
+   GLOBAL RESET & BASE STYLES
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.5;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}

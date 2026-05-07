@@ -1,0 +1,196 @@
+/* ============================================================
+   CARD COMPONENT
+   ============================================================ */
+
+.c-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.c-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Hover elevate variant --- */
+.c-card--hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-light);
+}
+
+/* --- Padding --- */
+.c-card__body {
+  padding: var(--spacing-2xl);
+}
+
+.c-card__body--sm {
+  padding: var(--spacing-lg);
+}
+
+.c-card__body--lg {
+  padding: var(--spacing-3xl);
+}
+
+/* --- Header --- */
+.c-card__header {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.c-card__title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.c-card__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* --- Footer --- */
+.c-card__footer {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+/* ============================================================
+   STAT CARD (dashboard metric cards)
+   ============================================================ */
+
+.c-stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-2xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
+  cursor: default;
+}
+
+.c-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--stat-accent, var(--color-primary));
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  border-radius: 0 2px 2px 0;
+}
+
+.c-stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--color-primary-light);
+}
+
+.c-stat-card:hover::before {
+  opacity: 1;
+}
+
+/* --- Content --- */
+.c-stat-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.c-stat-card__value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  transition: color var(--transition-fast);
+}
+
+.c-stat-card:hover .c-stat-card__value {
+  color: var(--color-primary);
+}
+
+.c-stat-card__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  font-weight: var(--font-weight-medium);
+}
+
+/* --- Icon --- */
+.c-stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--stat-icon-bg, #e6f9ee);
+  flex-shrink: 0;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.c-stat-card:hover .c-stat-card__icon {
+  transform: scale(1.08) rotate(-5deg);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.c-stat-card__icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--stat-icon-color, #28c76f);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- Color variants via CSS custom properties --- */
+.c-stat-card--green {
+  --stat-icon-bg: #e6f9ee;
+  --stat-icon-color: #28c76f;
+  --stat-accent: #28c76f;
+}
+
+.c-stat-card--orange {
+  --stat-icon-bg: #fff5e9;
+  --stat-icon-color: #ff9f43;
+  --stat-accent: #ff9f43;
+}
+
+.c-stat-card--blue {
+  --stat-icon-bg: #e0f9fc;
+  --stat-icon-color: #00cfe8;
+  --stat-accent: #00cfe8;
+}
+
+.c-stat-card--teal {
+  --stat-icon-bg: #e6f7f5;
+  --stat-icon-color: #4fd4c4;
+  --stat-accent: #4fd4c4;
+}
+
+.c-stat-card--pink {
+  --stat-icon-bg: #fff0f3;
+  --stat-icon-color: #f45b7a;
+  --stat-accent: #f45b7a;
+}

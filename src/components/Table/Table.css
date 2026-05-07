@@ -1,0 +1,207 @@
+/* ============================================================
+   TABLE COMPONENT
+   ============================================================ */
+
+.c-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  -webkit-overflow-scrolling: touch;
+}
+
+.c-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+/* --- Head --- */
+.c-table__head {
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.c-table__head th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.c-table__head th.is-sortable {
+  cursor: pointer;
+  position: relative;
+  padding-right: var(--spacing-2xl);
+  transition: color var(--transition-fast);
+}
+
+.c-table__head th.is-sortable:hover {
+  color: var(--color-text);
+}
+
+.c-table__head th.is-sorted {
+  color: var(--color-primary);
+}
+
+.c-table__sort-icon {
+  position: absolute;
+  right: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+
+.c-table__head th.is-sortable:hover .c-table__sort-icon,
+.c-table__head th.is-sorted .c-table__sort-icon {
+  opacity: 1;
+}
+
+/* --- Body --- */
+.c-table__body tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--transition-fast);
+}
+
+.c-table__body tr:last-child {
+  border-bottom: none;
+}
+
+.c-table__body tr:hover {
+  background: var(--color-bg);
+}
+
+.c-table__body td {
+  padding: var(--spacing-lg);
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+/* --- Link cell --- */
+.c-table__link {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  transition:
+    color var(--transition-fast),
+    text-decoration var(--transition-fast);
+}
+
+.c-table__link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* --- Empty state --- */
+.c-table__empty {
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  color: var(--color-text-muted);
+}
+
+.c-table__empty-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.3;
+}
+
+.c-table__empty-icon svg {
+  width: 48px;
+  height: 48px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.c-table__empty-text {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-xs);
+}
+
+.c-table__empty-sub {
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+
+.c-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.c-pagination__info {
+  white-space: nowrap;
+}
+
+.c-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.c-pagination__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+  font-family: var(--font-family);
+}
+
+.c-pagination__btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.c-pagination__btn.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 4px 12px rgba(244, 91, 122, 0.35);
+}
+
+.c-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.c-pagination__btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

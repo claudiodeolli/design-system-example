@@ -1,0 +1,252 @@
+/* ============================================================
+   BUTTON COMPONENT
+   ============================================================ */
+
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: 10px var(--spacing-xl);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+/* Ripple effect */
+.c-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background var(--transition-fast);
+}
+
+.c-btn:active::after {
+  background: rgba(255,255,255,0.15);
+}
+
+.c-btn:active {
+  transform: translateY(1px);
+}
+
+/* --- Icons inside button --- */
+.c-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.c-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* --- Variant: Primary --- */
+.c-btn--primary {
+  background: linear-gradient(135deg, #f45b7a 0%, #f9849a 100%);
+  border-color: transparent;
+  color: var(--color-white);
+  box-shadow: 0 4px 14px rgba(244, 91, 122, 0.35);
+}
+
+.c-btn--primary:hover {
+  background: linear-gradient(135deg, #d94569 0%, #f45b7a 100%);
+  box-shadow: 0 6px 20px rgba(244, 91, 122, 0.45);
+  transform: translateY(-1px);
+}
+
+.c-btn--primary:active {
+  box-shadow: 0 2px 8px rgba(244, 91, 122, 0.3);
+  transform: translateY(1px);
+}
+
+/* --- Variant: Secondary (outlined) --- */
+.c-btn--secondary {
+  background: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.c-btn--secondary:hover {
+  background: var(--color-primary-bg);
+  box-shadow: 0 4px 14px rgba(244, 91, 122, 0.15);
+  transform: translateY(-1px);
+}
+
+/* --- Variant: Ghost --- */
+.c-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text-muted);
+}
+
+.c-btn--ghost:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* --- Variant: Danger --- */
+.c-btn--danger {
+  background: linear-gradient(135deg, #ea5455 0%, #f08080 100%);
+  border-color: transparent;
+  color: var(--color-white);
+  box-shadow: 0 4px 14px rgba(234, 84, 85, 0.3);
+}
+
+.c-btn--danger:hover {
+  background: linear-gradient(135deg, #c53030 0%, #ea5455 100%);
+  box-shadow: 0 6px 20px rgba(234, 84, 85, 0.4);
+  transform: translateY(-1px);
+}
+
+/* --- Variant: Success --- */
+.c-btn--success {
+  background: linear-gradient(135deg, #28c76f 0%, #55dd95 100%);
+  border-color: transparent;
+  color: var(--color-white);
+  box-shadow: 0 4px 14px rgba(40, 199, 111, 0.3);
+}
+
+.c-btn--success:hover {
+  background: linear-gradient(135deg, #1e9e57 0%, #28c76f 100%);
+  box-shadow: 0 6px 20px rgba(40, 199, 111, 0.4);
+  transform: translateY(-1px);
+}
+
+/* --- Variant: White / Surface --- */
+.c-btn--white {
+  background: var(--color-white);
+  border-color: var(--color-border);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.c-btn--white:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 4px 14px rgba(244, 91, 122, 0.1);
+  transform: translateY(-1px);
+}
+
+/* --- Sizes --- */
+.c-btn--xs {
+  padding: 5px 10px;
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+}
+
+.c-btn--sm {
+  padding: 7px 14px;
+  font-size: var(--font-size-sm);
+}
+
+.c-btn--md {
+  /* default */
+}
+
+.c-btn--lg {
+  padding: 13px var(--spacing-2xl);
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-lg);
+}
+
+.c-btn--xl {
+  padding: 16px 32px;
+  font-size: var(--font-size-lg);
+  border-radius: var(--radius-lg);
+}
+
+/* --- Full width --- */
+.c-btn--block {
+  width: 100%;
+}
+
+/* --- Icon only --- */
+.c-btn--icon {
+  padding: 10px;
+  aspect-ratio: 1;
+}
+
+.c-btn--icon.c-btn--sm {
+  padding: 7px;
+}
+
+.c-btn--icon.c-btn--lg {
+  padding: 13px;
+}
+
+/* --- Loading state --- */
+.c-btn.is-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.c-btn.is-loading .c-btn__text {
+  opacity: 0;
+}
+
+.c-btn.is-loading::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Disabled --- */
+.c-btn:disabled,
+.c-btn.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Rounded --- */
+.c-btn--pill {
+  border-radius: var(--radius-full);
+}
+
+/* --- With badge --- */
+.c-btn__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: rgba(255,255,255,0.3);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+}
