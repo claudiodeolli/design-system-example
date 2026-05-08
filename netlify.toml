@@ -4,9 +4,3 @@
 
 [build.environment]
   NODE_ENV  = "development"
-
-[[redirects]]
-  from   = "/storybook"
-  to     = "/storybook/"
-  status = 301
-  force  = true
