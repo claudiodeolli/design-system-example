@@ -6,7 +6,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "demo": "npx serve demo -p 5500",
-    "build": "npx storybook build && mkdir -p dist/storybook && cp -r demo/. dist/ && cp -r storybook-static/. dist/storybook/",
+    "build": "npx storybook build -o dist/storybook && cp -r demo/. dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
