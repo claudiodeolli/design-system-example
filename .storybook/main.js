@@ -9,6 +9,10 @@ const config = {
   docs: {
     autodocs: 'tag',
   },
+  webpackFinal: async (webpackConfig) => {
+    webpackConfig.output.publicPath = '/storybook/';
+    return webpackConfig;
+  },
 };
 
 export default config;
